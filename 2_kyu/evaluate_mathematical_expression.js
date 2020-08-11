@@ -1,20 +1,16 @@
-// This got a bit messy and could use cleaning up but it's working
 const calc = expression => {
-  const numCheckString = "(-?\\d+(?:\\.\\d+(?:e(?:\\+|-)\\d+)?)?)";
-  const operatorCheckStrings = [" ?(\\*|\\/) ?", " ?(\\+|-) ?"];
-  
+  // Evaluate brackets first and replace with result
   const bracketCheck = /-?\(([^()]+)\)/;
-  
-  while (expression.search(bracketCheck) != -1) {
-    expression = expression.replace(bracketCheck, (match, c1) => {
-      return match[0] == '-' ? calc(c1) * -1 : calc(c1);
-    });
-  };
+  while (bracketCheck.test(expression)) expression = expression.replace(bracketCheck, (match, c1) => match[0] == '-' ? -calc(c1) : calc(c1));
 
-  operatorCheckStrings.forEach((checkString) => {
-    const regex = new RegExp(numCheckString + checkString + numCheckString)
-    while (expression.search(regex) != -1) {
-      expression = expression.replace(regex, (_, a, o, b) => {
+  const checks = [
+    /(-?\d+(?:\.\d+(?:e(?:\+|-)\d+)?)?) ?(\*|\/) ?(-?\d+(?:\.\d+(?:e(?:\+|-)\d+)?)?)/,
+    /(-?\d+(?:\.\d+(?:e(?:\+|-)\d+)?)?) ?(\+|-) ?(-?\d+(?:\.\d+(?:e(?:\+|-)\d+)?)?)/
+  ]
+  
+  checks.forEach((check) => {
+    while (check.test(expression)) {
+      expression = expression.replace(check, (_, a, o, b) => {
         [a, b] = [+a, +b];
         switch (o) {
           case '*': return a * b;
