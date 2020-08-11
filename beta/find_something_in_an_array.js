@@ -1,0 +1,1 @@
+const find = (string, array) => array.includes(string);
